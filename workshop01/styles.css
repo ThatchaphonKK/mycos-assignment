@@ -1,0 +1,49 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: hsl(212, 45%, 89%)
+}
+
+#cardcontainer {
+    text-align: center;
+    background-color: hsl(0, 0%, 100%);
+    padding: 16px;
+    border-radius: 16px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 250px;
+    height: 400px;
+}
+
+#imagecontainer {
+    display: flex;
+    justify-content: center;
+}
+
+#imagecontainer img {
+    width: 100%;
+    border-radius: 10px;
+}
+
+.title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #333;
+    margin-top: 18px;
+}
+
+.description {
+    font-size: 14px;
+    color: #555;
+    margin-top: 18px;
+}
+
+.attribution {
+    font-size: 12px;
+    color: #888;
+    text-align: center;
+    margin-top: 20px;
+}
