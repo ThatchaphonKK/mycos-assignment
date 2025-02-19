@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hi-Lo Game</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #1e1e2e; color: white; }
+        .container { max-width: 500px; margin: auto; padding: 20px; background: #2b2b3a; border-radius: 10px; box-shadow: 0 0 10px rgba(255, 255, 255, 0.2); }
+        .dice-container { display: flex; justify-content: center; margin: 20px; gap: 15px; }
+        .dice { font-size: 50px; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; background: white; color: black; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); }
+        .rolling { animation: roll 1s ease-in-out infinite; }
+        @keyframes roll {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(360deg); }
+            100% { transform: rotate(0deg); }
+        }
+        button { padding: 10px 15px; margin: 5px; font-size: 16px; cursor: pointer; border: none; border-radius: 5px; transition: 0.3s; }
+        .bet-btn { background-color: #28a745; color: white; }
+        .bet-btn:hover { background-color: #218838; }
+        .selected { background-color: #ffc107 !important; color: black !important; }
+        .roll-btn { background-color: #007bff; color: white; }
+        .roll-btn:hover { background-color: #0056b3; }
+        .restart-btn { background-color: #dc3545; color: white; }
+        .restart-btn:hover { background-color: #c82333; }
+        .input-container { display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 10px; }
+        input { padding: 10px; font-size: 16px; width: 100px; text-align: center; border-radius: 5px; border: none; }
+        #result { font-weight: bold; margin-top: 10px; font-size: 18px; }
+        .container { 
+            max-width: 500px; 
+            padding: 20px; 
+            background: #2b2b3a; 
+            border-radius: 10px; 
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2); 
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Hi-Lo Game</h1>
+        <p>Balance: $<span id="balance">100</span></p>
+        <div class="input-container">
+            <input type="number" id="betAmount" placeholder="Enter Bet" min="1" oninput="validateBet()">
+        </div>
+        <div class="input-container">
+            <button class="bet-btn" id="high" onclick="placeBet('high')">High</button>
+            <button class="bet-btn" id="mid" onclick="placeBet('mid')">Mid x 5</button>
+            <button class="bet-btn" id="low" onclick="placeBet('low')">Low</button>
+        </div>
+        <button class="roll-btn" onclick="rollDiceGame()" disabled id="rollButton">Roll Dice</button>
+        <div class="dice-container">
+            <div class="dice" id="dice1">🎲</div>
+            <div class="dice" id="dice2">🎲</div>
+            <div class="dice" id="dice3">🎲</div>
+        </div>
+        <p id="result"></p>
+        <p>High: Win if the sum of 3 dice is 12 or more</p>
+        <p>Mid: Win if the sum of 3 dice is exactly 11</p>
+        <p>Low: Win if the sum of 3 dice is 10 or less</p>
+    </div>
+    
+    <script>
+        let balance = 100;
+        let currentBet = 0;
+        let currentChoice = '';
+        let betPlaced = false;
+
+        function rollDice() {
+            return Math.floor(Math.random() * 6) + 1;
+        }
+
+        function validateBet() {
+            let bet = document.getElementById('betAmount').value;
+            document.getElementById('betAmount').style.border = (bet < 1 || bet > balance) ? '2px solid red' : 'none';
+        }
+
+        function placeBet(choice) {
+            if (betPlaced) return; 
+            let bet = parseInt(document.getElementById('betAmount').value);
+            if (isNaN(bet) || bet <= 0 || bet > balance) {
+                document.getElementById('result').innerText = 'Invalid bet amount!';
+                return;
+            }            
+            currentChoice = choice;
+            currentBet = bet;
+            highlightBet(choice);        
+            document.getElementById('rollButton').disabled = false;
+        }
+
+        function calculateBetBalance(){            
+            let bet = parseInt(document.getElementById('betAmount').value);            
+            balance -= bet;
+            document.getElementById('balance').innerText = balance;
+        }
+
+        function highlightBet(choice) {
+            document.querySelectorAll('.bet-btn').forEach(btn => btn.classList.remove('selected'));
+            document.getElementById(choice).classList.add('selected');
+        }
+
+        function resetDice() {
+            document.getElementById('dice1').innerText = '🎲';
+            document.getElementById('dice2').innerText = '🎲';
+            document.getElementById('dice3').innerText = '🎲';
+        }
+
+        function rollDiceGame() {
+            betPlaced = true;
+            resetDice()
+            calculateBetBalance()
+            document.getElementById('result').innerText = '';
+            document.getElementById('rollButton').disabled = true;
+            resetDice()            
+            animateDice();
+            betPlaced = false;
+        }
+
+        function animateDice() {
+            let diceElements = document.querySelectorAll('.dice');
+            diceElements.forEach(dice => dice.classList.add('rolling'));
+            setTimeout(() => {
+                diceElements.forEach(dice => dice.classList.remove('rolling'));
+                rollAndCheck();
+            }, 1500);
+        }
+
+        function rollAndCheck() {
+            let dice1 = rollDice();
+            let dice2 = rollDice();
+            let dice3 = rollDice();
+            let sum = dice1 + dice2 + dice3;
+
+            document.getElementById('dice1').innerText = dice1;
+            document.getElementById('dice2').innerText = dice2;
+            document.getElementById('dice3').innerText = dice3;
+
+            let resultText = `Sum: ${sum}. `;
+            let winMultiplier = 1;
+            
+            if (sum >= 12 && currentChoice === 'high') winMultiplier = 2;
+            else if (sum === 11 && currentChoice === 'mid') winMultiplier = 5;
+            else if (sum <= 10 && currentChoice === 'low') winMultiplier = 2;
+            
+            if (winMultiplier > 1) {
+                let winnings = currentBet * winMultiplier;
+                balance += winnings;
+                document.getElementById('balance').innerText = balance;
+                resultText += `You won $${winnings}! 🎉`;
+            } else {
+                resultText += 'You lost! 😞';
+            }
+            document.getElementById('result').innerText = resultText;
+            betPlaced = false;
+            document.getElementById('rollButton').disabled = false;
+        }
+
+        function restartGame() {
+            balance = 100;
+            document.getElementById('balance').innerText = balance;
+            document.getElementById('result').innerText = '';
+            document.getElementById('betAmount').value = '';
+            document.getElementById('rollButton').disabled = false;
+            resetDice();
+            document.querySelectorAll('.bet-btn').forEach(btn => btn.classList.remove('selected'));
+            betPlaced = false;
+        }
+    </script>
+</body>
+</html>
